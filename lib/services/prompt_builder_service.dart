@@ -58,4 +58,12 @@ Corrige et améliore ce texte. Fournis : correction orthographe, reformulation p
 Texte :
 $text
 ''';
+
+  String improveWithoutInventing(String text) => '''
+$_ethics
+Améliore ce contenu sans ajouter aucun fait non fourni. Tu peux reformuler, clarifier, structurer, rendre plus professionnel et mettre en valeur les éléments existants, mais tu dois signaler explicitement les informations manquantes au lieu de les inventer.
+
+Contenu :
+$text
+''';
 }

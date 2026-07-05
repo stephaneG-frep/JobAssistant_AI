@@ -65,6 +65,7 @@ class _RecruiterReplyScreenState extends State<RecruiterReplyScreen> {
           AiResponseCard(
             title: _kind,
             content: _result,
+            onContentChanged: (value) => setState(() => _result = value),
             onSaveTemplate: _result.isEmpty ? null : () => context.read<TemplateProvider>().addFromContent(_kind, 'Réponse recruteur', _result),
           ),
         ],

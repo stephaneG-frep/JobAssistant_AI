@@ -35,18 +35,20 @@ class _OfferAnalysisScreenState extends State<OfferAnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final ai = context.watch<AiProvider>();
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text('Analyse d’offre', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 16),
-        PromptInputBox(controller: _offer, label: 'Collez l’offre d’emploi', hint: 'Missions, profil recherché, contrat, entreprise...'),
-        const SizedBox(height: 12),
-        FilledButton.icon(onPressed: ai.isLoading ? null : _run, icon: const Icon(Icons.auto_awesome), label: Text(ai.isLoading ? 'Analyse en cours...' : 'Analyser')),
-        if (ai.error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(ai.error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
-        const SizedBox(height: 16),
-        AiResponseCard(title: 'Analyse générée', content: _result),
-      ],
+    return Scaffold(
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text('Analyse d’offre', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 16),
+          PromptInputBox(controller: _offer, label: 'Collez l’offre d’emploi', hint: 'Missions, profil recherché, contrat, entreprise...'),
+          const SizedBox(height: 12),
+          FilledButton.icon(onPressed: ai.isLoading ? null : _run, icon: const Icon(Icons.auto_awesome), label: Text(ai.isLoading ? 'Analyse en cours...' : 'Analyser')),
+          if (ai.error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(ai.error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+          const SizedBox(height: 16),
+          AiResponseCard(title: 'Analyse générée', content: _result),
+        ],
+      ),
     );
   }
 }

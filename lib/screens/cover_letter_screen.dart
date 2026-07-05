@@ -70,6 +70,7 @@ class _CoverLetterScreenState extends State<CoverLetterScreen> {
         AiResponseCard(
           title: 'Lettre générée',
           content: _result,
+          onContentChanged: (value) => setState(() => _result = value),
           onSaveTemplate: _result.isEmpty ? null : () => context.read<TemplateProvider>().addFromContent('Lettre ${_position.text}', 'Lettre', _result),
         ),
       ],

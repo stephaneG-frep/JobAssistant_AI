@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'providers/ai_provider.dart';
+import 'providers/application_provider.dart';
 import 'providers/history_provider.dart';
+import 'providers/profile_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/template_provider.dart';
 import 'services/local_database_service.dart';
@@ -25,6 +27,8 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(create: (_) => HistoryProvider(database)..load()),
         ChangeNotifierProvider(create: (_) => TemplateProvider(database)..load()),
+        ChangeNotifierProvider(create: (_) => ApplicationProvider(database)..load()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider(database)..load()),
       ],
       child: const JobAssistantApp(),
     ),

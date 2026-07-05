@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/settings_provider.dart';
+import '../services/ollama_service.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final TextEditingController _apiProvider;
   late final TextEditingController _apiKey;
   late final TextEditingController _apiEndpoint;
+  String _ollamaStatus = '';
+  List<String> _ollamaModels = [];
 
   @override
   void initState() {
@@ -49,6 +53,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Paramètres enregistrés localement.')));
   }
 
+  Future<void> _testOllama() async {
+    setState(() => _ollamaStatus = 'Test en cours...');
+    try {
+      final service = OllamaService(baseUrl: _ollamaUrl.text.trim(), model: _ollamaModel.text.trim());
+      final models = await service.listModels();
+      setState(() {
+        _ollamaModels = models;
+        _ollamaStatus = models.isEmpty ? 'Ollama répond, aucun modèle installé.' : 'Ollama connecté : ${models.length} modèle(s) disponible(s).';
+      });
+    } catch (exception) {
+      setState(() => _ollamaStatus = exception.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
@@ -71,6 +89,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Mode sombre'),
                   value: settings.isDarkMode,
                   onChanged: (value) => settings.save(darkMode: value),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.person_outline),
+                  title: const Text('Profil local'),
+                  subtitle: const Text('CV, compétences, expériences et préférences réutilisables'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
                 ),
               ],
             ),
@@ -98,6 +124,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 12),
         TextField(controller: _ollamaModel, decoration: const InputDecoration(labelText: 'Nom du modèle personnalisé')),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            OutlinedButton.icon(onPressed: _testOllama, icon: const Icon(Icons.wifi_tethering), label: const Text('Tester Ollama')),
+            if (_ollamaModels.isNotEmpty)
+              OutlinedButton.icon(
+                onPressed: () => showModalBottomSheet<void>(
+                  context: context,
+                  builder: (_) => ListView(
+                    children: _ollamaModels
+                        .map(
+                          (model) => ListTile(
+                            title: Text(model),
+                            onTap: () {
+                              setState(() => _ollamaModel.text = model);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+                icon: const Icon(Icons.list),
+                label: const Text('Modèles'),
+              ),
+          ],
+        ),
+        if (_ollamaStatus.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_ollamaStatus)),
         const SizedBox(height: 24),
         Text('API IA', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),

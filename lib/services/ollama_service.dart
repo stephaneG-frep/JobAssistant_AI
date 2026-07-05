@@ -26,4 +26,15 @@ class OllamaService implements AiService {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     return data['response'] as String? ?? 'Réponse vide du modèle Ollama.';
   }
+
+  Future<List<String>> listModels() async {
+    final uri = Uri.parse('${baseUrl.replaceAll(RegExp(r'/$'), '')}/api/tags');
+    final response = await http.get(uri);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AiUnavailableException('Ollama est joignable, mais la liste des modèles a échoué (${response.statusCode}).');
+    }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final models = data['models'] as List<dynamic>? ?? const [];
+    return models.map((item) => (item as Map<String, dynamic>)['name'] as String? ?? '').where((name) => name.isNotEmpty).toList();
+  }
 }

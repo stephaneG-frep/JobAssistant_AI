@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
 import '../widgets/prompt_input_box.dart';
@@ -25,14 +26,14 @@ class _TextCorrectorScreenState extends State<TextCorrectorScreen> {
   }
 
   Future<void> _run() async {
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().textCorrection(_text.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().textCorrection(_text.text));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Correction', title: 'Correction professionnelle', content: result);
   }
 
   Future<void> _improveTruthfully() async {
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().improveWithoutInventing(_text.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().improveWithoutInventing(_text.text));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Correction', title: 'Amélioration sans invention', content: result);

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
 import '../widgets/prompt_input_box.dart';
@@ -25,8 +26,7 @@ class _OfferAnalysisScreenState extends State<OfferAnalysisScreen> {
   }
 
   Future<void> _run() async {
-    final ai = context.read<AiProvider>();
-    final result = await ai.generate(PromptBuilderService().offerAnalysis(_offer.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().offerAnalysis(_offer.text));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Analyse offre', title: 'Analyse d’offre', content: result, metadata: {'offer': _offer.text});

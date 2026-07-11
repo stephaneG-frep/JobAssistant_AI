@@ -10,13 +10,28 @@ class AiProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<String?> generate(String prompt) async {
+  Future<String?> generate(String prompt, {Future<bool> Function()? confirmExternalSend}) async {
     final current = settings;
     if (current == null) return null;
-    if (current.aiMode == AiMode.api && !current.apiConsent) {
-      error = 'Mode API bloqué : activez le consentement explicite dans les paramètres avant tout envoi externe.';
-      notifyListeners();
-      return null;
+    if (current.aiMode == AiMode.api) {
+      if (current.privacyPreset == PrivacyPreset.localOnly) {
+        error = 'Mode API bloqué : le préréglage de confidentialité est "Local uniquement".';
+        notifyListeners();
+        return null;
+      }
+      if (!current.apiConsent) {
+        error = 'Mode API bloqué : activez le consentement explicite dans les paramètres avant tout envoi externe.';
+        notifyListeners();
+        return null;
+      }
+      if (current.privacyPreset == PrivacyPreset.apiWithConfirmation) {
+        final accepted = await confirmExternalSend?.call();
+        if (accepted != true) {
+          error = 'Envoi API annulé.';
+          notifyListeners();
+          return null;
+        }
+      }
     }
 
     isLoading = true;
@@ -26,7 +41,7 @@ class AiProvider extends ChangeNotifier {
     try {
       final AiService service = current.aiMode == AiMode.local
           ? OllamaService(baseUrl: current.ollamaUrl, model: current.ollamaModel)
-          : ApiAiService(provider: current.apiProvider, apiKey: current.apiKey, endpoint: current.apiEndpoint);
+          : ApiAiService(provider: current.apiProvider, model: current.apiModel, apiKey: current.apiKey, endpoint: current.apiEndpoint);
       final result = await service.generate(prompt);
       return result.trim().isEmpty ? 'Le modèle a renvoyé une réponse vide.' : result.trim();
     } catch (exception) {

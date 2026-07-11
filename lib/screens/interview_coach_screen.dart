@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
 import '../widgets/prompt_input_box.dart';
@@ -27,7 +28,7 @@ class _InterviewCoachScreenState extends State<InterviewCoachScreen> {
   }
 
   Future<void> _run() async {
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().interviewCoach(_offer.text, _notes.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().interviewCoach(_offer.text, _notes.text));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Entretien', title: 'Préparation entretien', content: result);

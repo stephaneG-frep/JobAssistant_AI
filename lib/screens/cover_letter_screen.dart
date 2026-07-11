@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/template_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
 import '../widgets/prompt_input_box.dart';
@@ -33,7 +34,8 @@ class _CoverLetterScreenState extends State<CoverLetterScreen> {
   }
 
   Future<void> _run() async {
-    final result = await context.read<AiProvider>().generate(
+    final result = await AiRequestHelper.generate(
+      context,
           PromptBuilderService().coverLetter(position: _position.text, company: _company.text, offer: _offer.text, profile: _profile.text, tone: _tone),
         );
     if (!mounted || result == null) return;

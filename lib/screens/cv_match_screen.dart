@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/profile_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/file_import_service.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
@@ -33,7 +34,7 @@ class _CvMatchScreenState extends State<CvMatchScreen> {
   Future<void> _run() async {
     final profile = context.read<ProfileProvider>().profile;
     final cvText = _cv.text.trim().isEmpty ? profile.defaultCv : _cv.text;
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().cvMatch('$cvText\n\n${profile.contextBlock}', _offer.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().cvMatch('$cvText\n\n${profile.contextBlock}', _offer.text));
     if (!mounted || result == null) return;
     final match = RegExp(r'(\d{1,3})\s*/\s*100|score\D+(\d{1,3})', caseSensitive: false).firstMatch(result);
     setState(() {
@@ -46,7 +47,7 @@ class _CvMatchScreenState extends State<CvMatchScreen> {
   Future<void> _improveCv() async {
     final profile = context.read<ProfileProvider>().profile;
     final cvText = _cv.text.trim().isEmpty ? profile.defaultCv : _cv.text;
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().improveWithoutInventing(cvText));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().improveWithoutInventing(cvText));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Correction', title: 'CV amélioré sans invention', content: result);

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/ai_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/template_provider.dart';
+import '../services/ai_request_helper.dart';
 import '../services/prompt_builder_service.dart';
 import '../widgets/ai_response_card.dart';
 import '../widgets/prompt_input_box.dart';
@@ -27,7 +28,7 @@ class _RecruiterReplyScreenState extends State<RecruiterReplyScreen> {
   }
 
   Future<void> _run() async {
-    final result = await context.read<AiProvider>().generate(PromptBuilderService().recruiterReply(_kind, _context.text));
+    final result = await AiRequestHelper.generate(context, PromptBuilderService().recruiterReply(_kind, _context.text));
     if (!mounted || result == null) return;
     setState(() => _result = result);
     await context.read<HistoryProvider>().add(type: 'Réponse recruteur', title: _kind, content: result);
